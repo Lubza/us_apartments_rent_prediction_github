@@ -7,17 +7,6 @@ import streamlit as st
 
 
 # ------------------------------------------------------
-# PAGE CONFIG
-# ------------------------------------------------------
-
-st.set_page_config(
-    page_title="Data Explorer | US Apartment Rent Prediction",
-    page_icon="📊",
-    layout="wide",
-)
-
-
-# ------------------------------------------------------
 # LOAD DATA
 # ------------------------------------------------------
 
