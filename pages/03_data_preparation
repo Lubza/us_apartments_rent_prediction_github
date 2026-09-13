@@ -1,0 +1,732 @@
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import plotly.express as px
+import streamlit as st
+
+
+# ------------------------------------------------------
+# PAGE CONFIG
+# ------------------------------------------------------
+
+st.set_page_config(
+    page_title="Data Preparation | US Apartment Rent Prediction",
+    page_icon="🧹",
+    layout="wide",
+)
+
+
+# ------------------------------------------------------
+# LOAD DATA
+# ------------------------------------------------------
+
+DATA_PATH = (
+    Path(__file__).parent.parent
+    / "data"
+    / "apartments_for_rent_10K.csv"
+)
+
+
+@st.cache_data
+def load_data():
+
+    df = pd.read_csv(
+        DATA_PATH,
+        sep=";",
+        encoding="cp1252",
+    )
+
+    numeric_columns = [
+        "price",
+        "square_feet",
+        "bedrooms",
+        "bathrooms",
+        "latitude",
+        "longitude",
+    ]
+
+    for column in numeric_columns:
+
+        if column in df.columns:
+
+            df[column] = pd.to_numeric(
+                df[column],
+                errors="coerce",
+            )
+
+    return df
+
+
+df = load_data()
+
+
+# ------------------------------------------------------
+# HEADER
+# ------------------------------------------------------
+
+st.title("🧹 Data Preparation")
+
+st.markdown(
+    """
+    Before training machine learning models, the raw rental data must be
+    cleaned and transformed into a reliable modeling dataset.
+
+    This section explains missing values, feature selection, target leakage,
+    feature engineering and the preprocessing pipeline used before modeling.
+    """
+)
+
+st.divider()
+
+
+# ------------------------------------------------------
+# TABS
+# ------------------------------------------------------
+
+tab1, tab2, tab3, tab4 = st.tabs(
+    [
+        "Data Quality",
+        "Feature Selection",
+        "Feature Engineering",
+        "Preprocessing Pipeline",
+    ]
+)
+
+
+# ======================================================
+# TAB 1 - DATA QUALITY
+# ======================================================
+
+with tab1:
+
+    st.header("Data Quality Overview")
+
+    total_cells = df.shape[0] * df.shape[1]
+    missing_cells = int(df.isna().sum().sum())
+
+    missing_percentage = (
+        missing_cells / total_cells * 100
+    )
+
+    columns_with_missing = int(
+        (df.isna().sum() > 0).sum()
+    )
+
+    duplicate_rows = int(
+        df.duplicated().sum()
+    )
+
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+
+        st.metric(
+            "Rows",
+            f"{len(df):,}",
+        )
+
+    with col2:
+
+        st.metric(
+            "Columns",
+            df.shape[1],
+        )
+
+    with col3:
+
+        st.metric(
+            "Missing Cells",
+            f"{missing_percentage:.1f}%",
+        )
+
+    with col4:
+
+        st.metric(
+            "Duplicate Rows",
+            f"{duplicate_rows:,}",
+        )
+
+
+    st.divider()
+
+    st.subheader("Missing Values")
+
+
+    missing_summary = pd.DataFrame(
+        {
+            "Feature": df.columns,
+            "Missing Values": df.isna().sum().values,
+            "Missing %": (
+                df.isna().mean().values * 100
+            ),
+        }
+    )
+
+    missing_summary = (
+        missing_summary
+        .sort_values(
+            "Missing %",
+            ascending=False,
+        )
+        .reset_index(drop=True)
+    )
+
+
+    missing_chart_data = missing_summary[
+        missing_summary["Missing Values"] > 0
+    ].copy()
+
+
+    if not missing_chart_data.empty:
+
+        fig_missing = px.bar(
+            missing_chart_data,
+            x="Missing %",
+            y="Feature",
+            orientation="h",
+            text="Missing %",
+            labels={
+                "Missing %": "Missing Values (%)",
+                "Feature": "",
+            },
+        )
+
+        fig_missing.update_traces(
+            texttemplate="%{text:.1f}%"
+        )
+
+        fig_missing.update_layout(
+            height=max(
+                400,
+                35 * len(missing_chart_data),
+            ),
+            yaxis={
+                "categoryorder": "total ascending"
+            },
+        )
+
+        st.plotly_chart(
+            fig_missing,
+            use_container_width=True,
+        )
+
+
+    st.dataframe(
+        missing_summary,
+        use_container_width=True,
+        hide_index=True,
+        column_config={
+            "Missing %":
+                st.column_config.NumberColumn(
+                    "Missing %",
+                    format="%.2f%%",
+                )
+        },
+    )
+
+
+    st.info(
+        f"{columns_with_missing} variables contain at least one "
+        "missing value. Missing values will not simply be removed; "
+        "their treatment depends on the type and meaning of each feature."
+    )
+
+
+# ======================================================
+# TAB 2 - FEATURE SELECTION
+# ======================================================
+
+with tab2:
+
+    st.header("Feature Selection")
+
+    st.markdown(
+        """
+        Not every column in the raw dataset should be passed into the
+        machine learning model. Some variables are identifiers, some
+        contain little useful information, and others can directly reveal
+        the target variable.
+        """
+    )
+
+
+    # --------------------------------------------------
+    # TARGET
+    # --------------------------------------------------
+
+    st.subheader("🎯 Target Variable")
+
+    st.success(
+        "**price** — Monthly apartment rent in USD"
+    )
+
+
+    # --------------------------------------------------
+    # TARGET LEAKAGE
+    # --------------------------------------------------
+
+    st.subheader("⚠️ Target Leakage")
+
+    leakage_rows = []
+
+    leakage_candidates = {
+        "price_display":
+            "Formatted representation of the target price.",
+        "body":
+            "Listing text may explicitly contain the rental price.",
+        "title":
+            "Listing title may occasionally contain price-related information.",
+    }
+
+
+    for feature, reason in leakage_candidates.items():
+
+        if feature in df.columns:
+
+            leakage_rows.append(
+                {
+                    "Feature": feature,
+                    "Decision": "Exclude",
+                    "Reason": reason,
+                }
+            )
+
+
+    leakage_df = pd.DataFrame(
+        leakage_rows
+    )
+
+    st.dataframe(
+        leakage_df,
+        use_container_width=True,
+        hide_index=True,
+    )
+
+    st.warning(
+        """
+        These variables are excluded before train/test splitting and model
+        fitting. Otherwise the model could indirectly access information
+        about the value it is supposed to predict.
+        """
+    )
+
+
+    # --------------------------------------------------
+    # OTHER EXCLUDED VARIABLES
+    # --------------------------------------------------
+
+    st.subheader("Other Variables Excluded from Modeling")
+
+    exclusion_candidates = {
+        "id":
+            "Unique listing identifier with no meaningful predictive relationship.",
+        "address":
+            "Very high-cardinality free-text location field.",
+        "currency":
+            "Little or no variation in this dataset.",
+        "fee":
+            "Little or no variation in this dataset.",
+        "category":
+            "Almost all observations belong to the same apartment category.",
+        "price_type":
+            "Almost all listings use the same monthly pricing convention.",
+        "time":
+            "Listing timestamp is not currently part of the prediction objective.",
+    }
+
+
+    exclusion_rows = []
+
+    for feature, reason in exclusion_candidates.items():
+
+        if feature in df.columns:
+
+            exclusion_rows.append(
+                {
+                    "Feature": feature,
+                    "Unique Values": df[feature].nunique(
+                        dropna=True
+                    ),
+                    "Decision": "Exclude",
+                    "Reason": reason,
+                }
+            )
+
+
+    exclusion_df = pd.DataFrame(
+        exclusion_rows
+    )
+
+    st.dataframe(
+        exclusion_df,
+        use_container_width=True,
+        hide_index=True,
+    )
+
+
+    # --------------------------------------------------
+    # MODEL FEATURES
+    # --------------------------------------------------
+
+    st.subheader("Candidate Modeling Features")
+
+
+    numerical_features = [
+        feature
+        for feature in [
+            "square_feet",
+            "bedrooms",
+            "bathrooms",
+            "latitude",
+            "longitude",
+        ]
+        if feature in df.columns
+    ]
+
+
+    categorical_features = [
+        feature
+        for feature in [
+            "state",
+            "cityname",
+            "pets_allowed",
+            "has_photo",
+            "source",
+        ]
+        if feature in df.columns
+    ]
+
+
+    feature_col1, feature_col2 = st.columns(2)
+
+    with feature_col1:
+
+        st.markdown("#### Numerical")
+
+        for feature in numerical_features:
+
+            st.markdown(
+                f"- `{feature}`"
+            )
+
+
+    with feature_col2:
+
+        st.markdown("#### Categorical")
+
+        for feature in categorical_features:
+
+            st.markdown(
+                f"- `{feature}`"
+            )
+
+
+# ======================================================
+# TAB 3 - FEATURE ENGINEERING
+# ======================================================
+
+with tab3:
+
+    st.header("Feature Engineering")
+
+    st.markdown(
+        """
+        Some useful predictive information is hidden inside raw text-like
+        features such as `amenities`. These fields can be converted into
+        structured variables that machine learning models can use.
+        """
+    )
+
+
+    # --------------------------------------------------
+    # AMENITIES
+    # --------------------------------------------------
+
+    if "amenities" in df.columns:
+
+        amenities = (
+            df["amenities"]
+            .fillna("")
+            .astype(str)
+        )
+
+
+        engineered_df = pd.DataFrame(
+            {
+                "has_pool":
+                    amenities.str.contains(
+                        "Pool",
+                        case=False,
+                        regex=False,
+                    ).astype(int),
+
+                "has_gym":
+                    amenities.str.contains(
+                        "Gym",
+                        case=False,
+                        regex=False,
+                    ).astype(int),
+
+                "has_parking":
+                    amenities.str.contains(
+                        "Parking",
+                        case=False,
+                        regex=False,
+                    ).astype(int),
+
+                "has_dishwasher":
+                    amenities.str.contains(
+                        "Dishwasher",
+                        case=False,
+                        regex=False,
+                    ).astype(int),
+
+                "has_elevator":
+                    amenities.str.contains(
+                        "Elevator",
+                        case=False,
+                        regex=False,
+                    ).astype(int),
+
+                "has_internet":
+                    amenities.str.contains(
+                        "Internet",
+                        case=False,
+                        regex=False,
+                    ).astype(int),
+
+                "amenities_count":
+                    amenities.apply(
+                        lambda value:
+                        0
+                        if not value.strip()
+                        else len(
+                            [
+                                item
+                                for item
+                                in value.split(",")
+                                if item.strip()
+                            ]
+                        )
+                    ),
+            }
+        )
+
+
+        st.subheader(
+            "Amenities → Structured Features"
+        )
+
+        st.dataframe(
+            engineered_df.head(20),
+            use_container_width=True,
+            hide_index=True,
+        )
+
+
+        st.subheader(
+            "Prevalence of Selected Amenities"
+        )
+
+
+        amenity_summary = pd.DataFrame(
+            {
+                "Feature": [
+                    "Pool",
+                    "Gym",
+                    "Parking",
+                    "Dishwasher",
+                    "Elevator",
+                    "Internet",
+                ],
+                "Listings": [
+                    engineered_df[
+                        "has_pool"
+                    ].sum(),
+
+                    engineered_df[
+                        "has_gym"
+                    ].sum(),
+
+                    engineered_df[
+                        "has_parking"
+                    ].sum(),
+
+                    engineered_df[
+                        "has_dishwasher"
+                    ].sum(),
+
+                    engineered_df[
+                        "has_elevator"
+                    ].sum(),
+
+                    engineered_df[
+                        "has_internet"
+                    ].sum(),
+                ],
+            }
+        )
+
+
+        amenity_summary["Share %"] = (
+            amenity_summary["Listings"]
+            / len(df)
+            * 100
+        )
+
+
+        fig_amenities = px.bar(
+            amenity_summary,
+            x="Feature",
+            y="Share %",
+            text="Share %",
+            labels={
+                "Share %":
+                    "Share of Listings (%)"
+            },
+        )
+
+        fig_amenities.update_traces(
+            texttemplate="%{text:.1f}%"
+        )
+
+        st.plotly_chart(
+            fig_amenities,
+            use_container_width=True,
+        )
+
+
+    # --------------------------------------------------
+    # IMPORTANT LEAKAGE NOTE
+    # --------------------------------------------------
+
+    st.subheader("EDA Feature vs Modeling Feature")
+
+    st.warning(
+        """
+        **rent_per_sqft = price / square_feet** is useful for exploratory
+        analysis and geographic visualization, but it must NOT be used as
+        an input feature for the rent prediction model because it directly
+        contains the target variable `price`.
+        """
+    )
+
+
+# ======================================================
+# TAB 4 - PREPROCESSING PIPELINE
+# ======================================================
+
+with tab4:
+
+    st.header("Machine Learning Preprocessing Pipeline")
+
+    st.markdown(
+        """
+        All transformations are learned only from the training data.
+        The same fitted preprocessing pipeline is then applied to the
+        test data to prevent data leakage.
+        """
+    )
+
+
+    st.code(
+        """
+RAW DATA
+   │
+   ├── Train / Test Split
+   │
+   ├── Numerical Features
+   │      square_feet
+   │      bedrooms
+   │      bathrooms
+   │      latitude
+   │      longitude
+   │
+   │        ↓
+   │   Median Imputation
+   │        ↓
+   │   StandardScaler
+   │
+   ├── Categorical Features
+   │      state
+   │      cityname
+   │      pets_allowed
+   │      has_photo
+   │
+   │        ↓
+   │   Most-Frequent Imputation
+   │        ↓
+   │   OneHotEncoder
+   │
+   ├── Engineered Features
+   │      has_pool
+   │      has_gym
+   │      has_parking
+   │      has_dishwasher
+   │      has_elevator
+   │      has_internet
+   │      amenities_count
+   │
+   └──────────────┐
+                  ↓
+           ColumnTransformer
+                  ↓
+              ML Model
+                  ↓
+             Prediction
+        """,
+        language="text",
+    )
+
+
+    st.subheader("Why use a Pipeline?")
+
+    col1, col2, col3 = st.columns(3)
+
+
+    with col1:
+
+        st.markdown(
+            """
+            ### 🔒 Leakage Prevention
+
+            Imputation, encoding and scaling are fitted only on the
+            training observations.
+            """
+        )
+
+
+    with col2:
+
+        st.markdown(
+            """
+            ### 🔁 Reproducibility
+
+            The exact same transformations are automatically applied
+            during cross-validation and prediction.
+            """
+        )
+
+
+    with col3:
+
+        st.markdown(
+            """
+            ### 🚀 Deployment
+
+            Preprocessing and the final model can be saved together and
+            used directly by the Streamlit Rent Predictor.
+            """
+        )
+
+
+    st.info(
+        """
+        Scaling is especially important for models such as Linear Regression
+        with regularization. Tree-based models generally do not require
+        feature scaling, so the final modeling pipelines can differ slightly
+        depending on the algorithm.
+        """
+    )
