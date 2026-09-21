@@ -11,7 +11,7 @@ import streamlit as st
 # ------------------------------------------------------
 
 DATA_PATH = (
-    Path(__file__).parent.parent
+    Path(__file__).resolve().parent.parent
     / "data"
     / "apartments_for_rent_10K.csv"
 )
@@ -128,11 +128,17 @@ def histogram_figure(series, title, xlabel, bins=40):
 
 
 def compact_dataframe(frame, height=None):
+    dataframe_kwargs = {
+        "width": "stretch",
+        "hide_index": True,
+    }
+
+    if height is not None:
+        dataframe_kwargs["height"] = height
+
     st.dataframe(
         frame,
-        use_container_width=True,
-        hide_index=True,
-        height=height,
+        **dataframe_kwargs,
     )
 
 
@@ -221,7 +227,7 @@ fig = histogram_figure(
     "Number of amenities",
     bins=max(10, int(data["n_amenities"].max()) + 1),
 )
-st.pyplot(fig, use_container_width=False)
+st.pyplot(fig, width="content")
 plt.close(fig)
 
 st.divider()
@@ -435,7 +441,7 @@ with before_col1:
         "square_feet",
         "Square feet",
     )
-    st.pyplot(fig, use_container_width=True)
+    st.pyplot(fig, width="stretch")
     plt.close(fig)
 
 with before_col2:
@@ -444,7 +450,7 @@ with before_col2:
         "price",
         "Monthly rent ($)",
     )
-    st.pyplot(fig, use_container_width=True)
+    st.pyplot(fig, width="stretch")
     plt.close(fig)
 
 st.code(
@@ -463,7 +469,7 @@ with after_col1:
         "log_square_feet",
         "log(Square feet)",
     )
-    st.pyplot(fig, use_container_width=True)
+    st.pyplot(fig, width="stretch")
     plt.close(fig)
 
 with after_col2:
@@ -472,7 +478,7 @@ with after_col2:
         "log_price",
         "log(Monthly rent)",
     )
-    st.pyplot(fig, use_container_width=True)
+    st.pyplot(fig, width="stretch")
     plt.close(fig)
 
 st.divider()

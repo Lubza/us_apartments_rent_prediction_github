@@ -128,11 +128,17 @@ FEATURE_IMPORTANCE = pd.DataFrame(
 # ------------------------------------------------------
 
 def compact_dataframe(frame, height=None):
+    dataframe_kwargs = {
+        "width": "stretch",
+        "hide_index": True,
+    }
+
+    if height is not None:
+        dataframe_kwargs["height"] = height
+
     st.dataframe(
         frame,
-        use_container_width=True,
-        hide_index=True,
-        height=height,
+        **dataframe_kwargs,
     )
 
 
@@ -1237,7 +1243,7 @@ refresh_col1, refresh_col2, refresh_col3 = st.columns([1, 2.2, 1])
 with refresh_col1:
     if st.button(
         "↻ Refresh figures",
-        use_container_width=False,
+        width="content",
         help="Reload the latest PNG files exported by the notebook.",
     ):
         st.rerun()

@@ -11,7 +11,7 @@ import streamlit as st
 # ------------------------------------------------------
 
 DATA_PATH = (
-    Path(__file__).parent.parent
+    Path(__file__).resolve().parent.parent
     / "data"
     / "apartments_for_rent_10K.csv"
 )
@@ -302,7 +302,7 @@ with tab1:
 
         st.plotly_chart(
             fig_distribution,
-            use_container_width=True,
+            width="stretch",
         )
 
 
@@ -317,7 +317,7 @@ with tab1:
 
     st.dataframe(
         stats,
-        use_container_width=True,
+        width="stretch",
     )
 
 
@@ -427,7 +427,7 @@ with tab2:
 
     st.plotly_chart(
         fig_scatter,
-        use_container_width=True,
+        width="stretch",
     )
 
 
@@ -464,7 +464,7 @@ with tab2:
 
     st.plotly_chart(
         fig_corr,
-        use_container_width=True,
+        width="stretch",
     )
 
 
@@ -540,7 +540,7 @@ with tab3:
 
     st.plotly_chart(
         fig_box,
-        use_container_width=True,
+        width="stretch",
     )
 
 
@@ -563,7 +563,7 @@ with tab3:
 
     st.dataframe(
         category_summary,
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
@@ -591,7 +591,7 @@ with tab4:
 
     st.dataframe(
         filtered_df[display_columns],
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 

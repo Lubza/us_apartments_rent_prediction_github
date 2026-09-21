@@ -10,7 +10,7 @@ import streamlit as st
 # ------------------------------------------------------
 
 DATA_PATH = (
-    Path(__file__).parent.parent
+    Path(__file__).resolve().parent.parent
     / "data"
     / "apartments_for_rent_10K.csv"
 )
@@ -168,7 +168,7 @@ with chart_col:
 
     st.plotly_chart(
         fig_price,
-        use_container_width=True
+        width="stretch"
     )
 
 
@@ -211,7 +211,7 @@ fig_scatter.update_layout(
 
 st.plotly_chart(
     fig_scatter,
-    use_container_width=True
+    width="stretch"
 )
 
 st.caption(
@@ -256,7 +256,7 @@ with geo_col1:
 
     st.plotly_chart(
         fig_states,
-        use_container_width=True
+        width="stretch"
     )
 
 
@@ -283,7 +283,7 @@ with geo_col2:
 
     st.plotly_chart(
         fig_state_rent,
-        use_container_width=True
+        width="stretch"
     )
 
 
@@ -326,6 +326,6 @@ with st.expander("View raw dataset sample"):
 
     st.dataframe(
         df.head(100),
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )

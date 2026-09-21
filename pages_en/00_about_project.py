@@ -10,6 +10,22 @@ st.title("About the Project")
 
 st.markdown(
     """
+    This page provides a non-technical introduction to the project and
+    describes the variables contained in the apartment rental dataset.
+    """
+)
+
+st.divider()
+
+
+# ======================================================
+# 1. NON-TECHNICAL SUMMARY
+# ======================================================
+
+st.header("Non-technical Summary")
+
+st.markdown(
+    """
     The goal of this project is to model apartment rental prices in the United
     States. The dataset contains approximately **10,000 observations from 2019**
     and, based on the structure of the `source` variable, was most likely
@@ -112,7 +128,7 @@ dataset_description = pd.DataFrame(
 
 st.dataframe(
     dataset_description,
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
     column_config={
         "#": st.column_config.NumberColumn(

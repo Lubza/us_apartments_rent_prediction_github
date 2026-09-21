@@ -10,6 +10,22 @@ st.title("O projekte")
 
 st.markdown(
     """
+    Táto stránka poskytuje netechnický úvod do projektu a opisuje
+    premenné obsiahnuté v datasete ponúk prenájmu bytov.
+    """
+)
+
+st.divider()
+
+
+# ======================================================
+# 1. NON-TECHNICAL SUMMARY
+# ======================================================
+
+st.header("Netechnické zhrnutie")
+
+st.markdown(
+    """
     Cieľom projektu je modelovať ceny prenájmu bytov v Spojených štátoch.
     Dataset obsahuje približne **10 000 pozorovaní z roku 2019** a podľa
     štruktúry premennej `source` bol pravdepodobne vytvorený web scrapingom
@@ -109,7 +125,7 @@ dataset_description = pd.DataFrame(
 
 st.dataframe(
     dataset_description,
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
     column_config={
         "#": st.column_config.NumberColumn(

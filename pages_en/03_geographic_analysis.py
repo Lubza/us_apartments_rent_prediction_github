@@ -11,7 +11,7 @@ import streamlit as st
 # ------------------------------------------------------
 
 DATA_PATH = (
-    Path(__file__).parent.parent
+    Path(__file__).resolve().parent.parent
     / "data"
     / "apartments_for_rent_10K.csv"
 )
@@ -388,7 +388,7 @@ with tab1:
     # MAP
     # --------------------------------------------------
 
-    fig_map = px.scatter_mapbox(
+    fig_map = px.scatter_map(
         map_data,
         lat="latitude",
         lon="longitude",
@@ -435,7 +435,7 @@ with tab1:
 
 
     fig_map.update_layout(
-        mapbox_style="open-street-map",
+        map_style="open-street-map",
 
         margin={
             "r": 0,
@@ -454,7 +454,7 @@ with tab1:
 
     st.plotly_chart(
         fig_map,
-        use_container_width=True,
+        width="stretch",
     )
 
 
@@ -613,7 +613,7 @@ with tab2:
 
     st.plotly_chart(
         fig_choropleth,
-        use_container_width=True,
+        width="stretch",
     )
 
 
@@ -627,7 +627,7 @@ with tab2:
 
     st.dataframe(
         ranking,
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         column_config={
             "state": "State",
@@ -781,7 +781,7 @@ with tab3:
 
     st.plotly_chart(
         fig_city,
-        use_container_width=True,
+        width="stretch",
     )
 
 
@@ -792,6 +792,6 @@ with tab3:
             city_metric_column,
             ascending=False,
         ),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )

@@ -652,7 +652,7 @@ st.markdown(
 predict_button = st.button(
     f"Predict rent with {selected_model_name}",
     type="primary",
-    use_container_width=True,
+    width="stretch",
 )
 
 
@@ -816,7 +816,7 @@ if predict_button:
 
         st.dataframe(
             display_input,
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 
