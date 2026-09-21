@@ -9,7 +9,11 @@ import streamlit as st
 # LOAD DATA
 # ------------------------------------------------------
 
-DATA_PATH = Path(__file__).parent / "data" / "apartments_for_rent_10K.csv"
+DATA_PATH = (
+    Path(__file__).parent.parent
+    / "data"
+    / "apartments_for_rent_10K.csv"
+)
 
 
 @st.cache_data
@@ -43,16 +47,16 @@ df = load_data()
 # HEADER
 # ------------------------------------------------------
 
-st.title("🏠 US Apartment Rent Prediction")
+st.title("🏠 Predikcia nájomného bytov v USA")
 
 st.markdown(
     """
-    An interactive data science project exploring the US apartment rental
-    market and developing machine learning models to predict monthly rent.
+    Interaktívny data-science projekt skúmajúci trh s prenájmom bytov v USA
+    a vyvíjajúci modely strojového učenia na predikciu mesačného nájomného.
 
-    The project covers exploratory data analysis, preprocessing,
-    feature engineering, model comparison, cross-validation,
-    hyperparameter tuning and model deployment.
+    Projekt zahŕňa exploratívnu analýzu dát, preprocessing, tvorbu premenných,
+    porovnanie modelov, krížovú validáciu, ladenie hyperparametrov a nasadenie
+    modelu.
     """
 )
 
@@ -67,31 +71,31 @@ col1, col2, col3, col4, col5 = st.columns(5)
 
 with col1:
     st.metric(
-        "Listings",
+        "Ponuky",
         f"{len(df):,}"
     )
 
 with col2:
     st.metric(
-        "Median Rent",
+        "Medián nájomného",
         f"${df['price'].median():,.0f}"
     )
 
 with col3:
     st.metric(
-        "Median Size",
+        "Medián veľkosti",
         f"{df['square_feet'].median():,.0f} ft²"
     )
 
 with col4:
     st.metric(
-        "States",
+        "Štáty",
         f"{df['state'].nunique():,}"
     )
 
 with col5:
     st.metric(
-        "Cities",
+        "Mestá",
         f"{df['cityname'].nunique():,}"
     )
 
@@ -102,43 +106,43 @@ with col5:
 
 st.divider()
 
-st.header("Rental Market Overview")
+st.header("Prehľad trhu s prenájmom")
 
 chart_col, stats_col = st.columns([3, 1])
 
 with stats_col:
 
-    st.subheader("Rent Statistics")
+    st.subheader("Štatistiky nájomného")
 
     st.metric(
-        "Average Rent",
+        "Priemerné nájomné",
         f"${df['price'].mean():,.0f}"
     )
 
     st.metric(
-        "Median Rent",
+        "Medián nájomného",
         f"${df['price'].median():,.0f}"
     )
 
     st.metric(
-        "Minimum Rent",
+        "Minimálne nájomné",
         f"${df['price'].min():,.0f}"
     )
 
     st.metric(
-        "Maximum Rent",
+        "Maximálne nájomné",
         f"${df['price'].max():,.0f}"
     )
 
 
 with chart_col:
 
-    st.subheader("Monthly Rent Distribution")
+    st.subheader("Rozdelenie mesačného nájomného")
 
     exclude_outliers = st.toggle(
-        "Exclude extreme rents",
+        "Vylúčiť extrémne nájomné",
         value=True,
-        help="Removes listings above $5,000 to make the main distribution easier to interpret."
+        help="Odstráni ponuky nad 5 000 USD, aby bolo hlavné rozdelenie prehľadnejšie."
     )
 
     if exclude_outliers:
@@ -151,13 +155,13 @@ with chart_col:
         x="price",
         nbins=50,
         labels={
-            "price": "Monthly Rent ($)"
+            "price": "Mesačné nájomné ($)"
         },
     )
 
     fig_price.update_layout(
-        xaxis_title="Monthly Rent ($)",
-        yaxis_title="Number of Listings",
+        xaxis_title="Mesačné nájomné ($)",
+        yaxis_title="Počet ponúk",
         bargap=0.05,
         height=420,
     )
@@ -174,7 +178,7 @@ with chart_col:
 
 st.divider()
 
-st.header("Rent vs Apartment Size")
+st.header("Nájomné vs. veľkosť bytu")
 
 scatter_data = df[
     (df["price"] <= 5000)
@@ -190,9 +194,9 @@ fig_scatter = px.scatter(
     color="bedrooms",
     opacity=0.55,
     labels={
-        "square_feet": "Apartment Size (ft²)",
-        "price": "Monthly Rent ($)",
-        "bedrooms": "Bedrooms",
+        "square_feet": "Veľkosť bytu (ft²)",
+        "price": "Mesačné nájomné ($)",
+        "bedrooms": "Spálne",
     },
     hover_data=[
         "cityname",
@@ -211,8 +215,8 @@ st.plotly_chart(
 )
 
 st.caption(
-    "The visualization excludes extremely large apartments and rents above "
-    "$5,000 to make the main relationship easier to interpret."
+    "Vizualizácia vylučuje extrémne veľké byty a nájomné nad 5 000 USD, "
+    "aby bol hlavný vzťah jednoduchšie interpretovateľný."
 )
 
 
@@ -222,7 +226,7 @@ st.caption(
 
 st.divider()
 
-st.header("Geographic Snapshot")
+st.header("Geografický prehľad")
 
 geo_col1, geo_col2 = st.columns(2)
 
@@ -244,10 +248,10 @@ with geo_col1:
         x="state",
         y="listings",
         labels={
-            "state": "State",
-            "listings": "Number of Listings"
+            "state": "Štát",
+            "listings": "Počet ponúk"
         },
-        title="Top States by Number of Listings"
+        title="Štáty s najvyšším počtom ponúk"
     )
 
     st.plotly_chart(
@@ -271,10 +275,10 @@ with geo_col2:
         x="state",
         y="price",
         labels={
-            "state": "State",
-            "price": "Median Monthly Rent ($)"
+            "state": "Štát",
+            "price": "Medián mesačného nájomného ($)"
         },
-        title="Highest Median Rents by State"
+        title="Najvyšší medián nájomného podľa štátu"
     )
 
     st.plotly_chart(
@@ -289,27 +293,27 @@ with geo_col2:
 
 st.divider()
 
-st.header("Project Workflow")
+st.header("Priebeh projektu")
 
 st.markdown(
     """
-    **1. Exploratory Data Analysis**  
-    Distribution analysis, multivariate relationships and geographic patterns.
+    **1. Exploratívna analýza dát**  
+    Analýza rozdelení, viacrozmerných vzťahov a geografických vzorcov.
 
-    **2. Data Preparation**  
-    Missing value imputation, encoding, scaling and feature engineering.
+    **2. Príprava dát**  
+    Imputácia chýbajúcich hodnôt, kódovanie, škálovanie a tvorba premenných.
 
-    **3. Model Development**  
-    Baseline regression model and ensemble machine learning models.
+    **3. Vývoj modelov**  
+    Regresné modely Random Forest, XGBoost, LASSO a Ridge.
 
-    **4. Model Evaluation**  
-    Cross-validation, RMSE, MAE and R² comparison.
+    **4. Vyhodnotenie modelov**  
+    Krížová validácia a porovnanie R² na odloženej testovacej vzorke.
 
-    **5. Hyperparameter Optimization**  
-    GridSearchCV and model tuning.
+    **5. Optimalizácia hyperparametrov**  
+    RandomizedSearchCV so spoločným ladením preprocessingu a modelu.
 
-    **6. Final Application**  
-    Interactive apartment rent prediction using the selected model.
+    **6. Finálna aplikácia**  
+    Interaktívna predikcia nájomného pomocou zvoleného modelu.
     """
 )
 
@@ -318,7 +322,7 @@ st.markdown(
 # DATASET PREVIEW
 # ------------------------------------------------------
 
-with st.expander("View raw dataset sample"):
+with st.expander("Zobraziť ukážku surového datasetu"):
 
     st.dataframe(
         df.head(100),

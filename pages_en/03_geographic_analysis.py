@@ -388,7 +388,7 @@ with tab1:
     # MAP
     # --------------------------------------------------
 
-    fig_map = px.scatter_map(
+    fig_map = px.scatter_mapbox(
         map_data,
         lat="latitude",
         lon="longitude",
@@ -435,7 +435,7 @@ with tab1:
 
 
     fig_map.update_layout(
-        map_style="carto-positron",
+        mapbox_style="open-street-map",
 
         margin={
             "r": 0,

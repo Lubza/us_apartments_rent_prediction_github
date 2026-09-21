@@ -14,33 +14,102 @@ st.set_page_config(
 
 
 # ------------------------------------------------------
+# LANGUAGE
+# ------------------------------------------------------
+
+language = st.sidebar.radio(
+    "Language / Jazyk",
+    options=["English", "Slovenčina"],
+    horizontal=True,
+    key="dashboard_language",
+)
+
+
+# ------------------------------------------------------
 # PAGE DEFINITIONS
 # ------------------------------------------------------
 
-overview_page = st.Page(
-    "pages/00_overview.py",
-    title="Overview",
-    icon="🏠",
-    default=True,
-)
+if language == "English":
 
-data_explorer_page = st.Page(
-    "pages/01_data_explorer.py",
-    title="Data Explorer",
-    icon="📊",
-)
+    pages = [
+        st.Page(
+            "pages_en/00_about_project.py",
+            title="About the Project",
+            icon="ℹ️",
+            default=True,
+        ),
+        st.Page(
+            "pages_en/01_overview.py",
+            title="Overview",
+            icon="🏠",
+        ),
+        st.Page(
+            "pages_en/02_data_explorer.py",
+            title="Data Explorer",
+            icon="📊",
+        ),
+        st.Page(
+            "pages_en/03_geographic_analysis.py",
+            title="Geographic Analysis",
+            icon="🗺️",
+        ),
+        st.Page(
+            "pages_en/04_data_preparation.py",
+            title="Data Preparation",
+            icon="🧹",
+        ),
+        st.Page(
+            "pages_en/05_model_development.py",
+            title="Model Development",
+            icon="🤖",
+        ),
+        st.Page(
+            "pages_en/06_rent_predictor.py",
+            title="Rent Predictor",
+            icon="💵",
+        ),
+    ]
 
-geographic_page = st.Page(
-    "pages/02_geographic_analysis.py",
-    title="Geographic Analysis",
-    icon="🗺️",
-)
+else:
 
-data_preparation_page = st.Page(
-    "pages/03_data_preparation.py",
-    title="Data Preparation",
-    icon="🧹",
-)
+    pages = [
+        st.Page(
+            "pages_sk/00_about_project.py",
+            title="O projekte",
+            icon="ℹ️",
+            default=True,
+        ),
+        st.Page(
+            "pages_sk/01_overview.py",
+            title="Prehľad",
+            icon="🏠",
+        ),
+        st.Page(
+            "pages_sk/02_data_explorer.py",
+            title="Prieskum dát",
+            icon="📊",
+        ),
+        st.Page(
+            "pages_sk/03_geographic_analysis.py",
+            title="Geografická analýza",
+            icon="🗺️",
+        ),
+        st.Page(
+            "pages_sk/04_data_preparation.py",
+            title="Príprava dát",
+            icon="🧹",
+        ),
+        st.Page(
+            "pages_sk/05_model_development.py",
+            title="Vývoj modelov",
+            icon="🤖",
+        ),
+        st.Page(
+            "pages_sk/06_rent_predictor.py",
+            title="Predikcia nájomného",
+            icon="💵",
+        ),
+    ]
 
 
 # ------------------------------------------------------
@@ -48,18 +117,8 @@ data_preparation_page = st.Page(
 # ------------------------------------------------------
 
 pg = st.navigation(
-    [
-        overview_page,
-        data_explorer_page,
-        geographic_page,
-        data_preparation_page,
-    ],
+    pages,
     position="sidebar",
 )
-
-
-# ------------------------------------------------------
-# RUN SELECTED PAGE
-# ------------------------------------------------------
 
 pg.run()
