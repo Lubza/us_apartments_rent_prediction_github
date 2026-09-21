@@ -314,19 +314,53 @@ with tab1:
 
 
     # --------------------------------------------------
-    # PERFORMANCE LIMIT
+    # POČET ZOBRAZENÝCH PONÚK
     # --------------------------------------------------
 
-    if len(map_data) > 3000:
+    available_listings = len(map_data)
+
+    if available_listings > 100:
+
+        listings_to_display = st.slider(
+            "Počet ponúk zobrazených na mape",
+            min_value=100,
+            max_value=available_listings,
+            value=min(3000, available_listings),
+            step=1,
+            help=(
+                "Menší počet bodov udržiava interaktívnu mapu rýchlejšiu. "
+                "Zvýšte hodnotu, ak chcete zobraziť väčšiu vzorku alebo "
+                "všetky ponuky dostupné po použití aktuálnych filtrov."
+            ),
+        )
+
+        st.caption(
+            "Menej bodov zlepšuje plynulosť mapy. "
+            "Posuňte slider na maximum, ak chcete zobraziť všetky dostupné ponuky."
+        )
+
+    else:
+
+        listings_to_display = available_listings
+
+
+    if listings_to_display < available_listings:
 
         map_data = map_data.sample(
-            3000,
+            listings_to_display,
             random_state=42,
         )
 
         st.info(
-            "Mapa zobrazuje náhodnú vzorku 3 000 ponúk, "
-            "aby zostala vizualizácia plynulá."
+            f"Zobrazuje sa náhodná vzorka {listings_to_display:,} z "
+            f"{available_listings:,} dostupných ponúk. "
+            "Zvýšte hodnotu slidera, ak chcete zobraziť viac bodov."
+        )
+
+    else:
+
+        st.info(
+            f"Zobrazujú sa všetky dostupné ponuky: {available_listings:,}."
         )
 
 

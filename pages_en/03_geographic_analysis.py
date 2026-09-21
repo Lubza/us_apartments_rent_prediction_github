@@ -315,19 +315,53 @@ with tab1:
 
 
     # --------------------------------------------------
-    # PERFORMANCE LIMIT
+    # NUMBER OF LISTINGS DISPLAYED
     # --------------------------------------------------
 
-    if len(map_data) > 3000:
+    available_listings = len(map_data)
+
+    if available_listings > 100:
+
+        listings_to_display = st.slider(
+            "Number of listings displayed on the map",
+            min_value=100,
+            max_value=available_listings,
+            value=min(3000, available_listings),
+            step=1,
+            help=(
+                "Displaying fewer points keeps the interactive map faster. "
+                "Increase the value to display a larger sample or all "
+                "available listings after the current filters are applied."
+            ),
+        )
+
+        st.caption(
+            "Fewer points improve map responsiveness. "
+            "Move the slider to the maximum to display all available listings."
+        )
+
+    else:
+
+        listings_to_display = available_listings
+
+
+    if listings_to_display < available_listings:
 
         map_data = map_data.sample(
-            3000,
+            listings_to_display,
             random_state=42,
         )
 
         st.info(
-            "The map displays a random sample of 3,000 listings "
-            "to keep the visualization responsive."
+            f"Showing a random sample of {listings_to_display:,} out of "
+            f"{available_listings:,} available listings. "
+            "Increase the slider to display more points."
+        )
+
+    else:
+
+        st.info(
+            f"Showing all {available_listings:,} available listings."
         )
 
 
