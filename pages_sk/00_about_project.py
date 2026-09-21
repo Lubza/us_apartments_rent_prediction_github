@@ -10,22 +10,6 @@ st.title("O projekte")
 
 st.markdown(
     """
-    Táto stránka poskytuje netechnický úvod do projektu a opisuje
-    premenné obsiahnuté v datasete ponúk prenájmu bytov.
-    """
-)
-
-st.divider()
-
-
-# ======================================================
-# 1. NON-TECHNICAL SUMMARY
-# ======================================================
-
-st.header("Netechnické zhrnutie")
-
-st.markdown(
-    """
     Cieľom projektu je modelovať ceny prenájmu bytov v Spojených štátoch.
     Dataset obsahuje približne **10 000 pozorovaní z roku 2019** a podľa
     štruktúry premennej `source` bol pravdepodobne vytvorený web scrapingom
@@ -46,7 +30,7 @@ st.info(
     modelovania. V reálnom projekte by táto časť mala jasne uvádzať, kto bude
     model používať, na čo budú predikcie slúžiť a aká veľkosť chyby je z
     obchodného pohľadu prijateľná. Zároveň je vhodné zvážiť, či technická
-    metrika ako R² patrí priamo do manažérskeho zhrnutia.
+    metrika ako R² patrí priamo do zhrnutia.
     """
 )
 

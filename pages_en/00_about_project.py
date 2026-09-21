@@ -8,21 +8,6 @@ import streamlit as st
 
 st.title("About the Project")
 
-st.markdown(
-    """
-    This page provides a non-technical introduction to the project and
-    describes the variables contained in the apartment rental dataset.
-    """
-)
-
-st.divider()
-
-
-# ======================================================
-# 1. NON-TECHNICAL SUMMARY
-# ======================================================
-
-st.header("Non-technical Summary")
 
 st.markdown(
     """
@@ -47,7 +32,7 @@ st.info(
     will use the model, how the predictions will be used, and what level of
     prediction error is acceptable from a business perspective. It is also
     worth considering whether a technical metric such as R² belongs directly
-    in a management summary.
+    in a summary.
     """
 )
 
