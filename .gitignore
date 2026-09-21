@@ -19,6 +19,10 @@ Thumbs.db
 # Model/cache files
 *.pkl
 *.joblib
+!models/model_xgb.pkl
+!models/model_rf.pkl
+!models/model_lasso.pkl
+!models/model_ridge.pkl
 
 # Streamlit
 .streamlit/secrets.toml
