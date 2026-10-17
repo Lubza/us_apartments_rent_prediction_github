@@ -1368,5 +1368,5 @@ st.markdown(
 st.caption(
     "Results, parameter values, diagnostics and interpretations on this page "
     "are based on the stored outputs and comments in "
-    "`projekt_reseni_EDA_komentare.ipynb`."
+    "`US_Apartment_Rent_Prediction_EN.ipynb`."
 )
