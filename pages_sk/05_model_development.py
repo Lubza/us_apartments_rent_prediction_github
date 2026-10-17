@@ -1348,5 +1348,5 @@ st.markdown(
 st.caption(
     "Výsledky, hodnoty parametrov, diagnostiky a interpretácie na tejto "
     "stránke vychádzajú z uložených výstupov a komentárov v notebooku "
-    "`projekt_reseni_EDA_komentare.ipynb`."
+    "`US_Apartment_Rent_Prediction_SK.ipynb`."
 )
